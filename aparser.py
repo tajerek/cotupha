@@ -6,29 +6,30 @@
 
 import streamlit as st
 import pandas as pd
-
-###################################
-
-
-###################################
-
 from functionforDownloadButtons import download_button
-
 ###################################
 
-
-def _max_width_():
-    max_width_str = f"max-width: 1800px;"
-    st.markdown(
-        f"""
-    <style>
-    .reportview-container .main .block-container{{
-        {max_width_str}
-    }}
-    </style>    
-    """,
-        unsafe_allow_html=True,
-    )
+def new_only(file1, file2) :
+    list1 = []
+    for index, row in file1.iterrows():
+        code = row['Code'].strip()
+        list1.append(str(code))
+    for index, row in file2.iterrows():
+        code = str(row['Code']).strip()
+        if code in list1:
+            file2 = file2.drop(index)
+    return(file2) 
+    
+def removed(file1, file2) :
+    list2 = []
+    for index, row in file2.iterrows():
+        code = row['Code'].strip()
+        list2.append(str(code))
+    for index, row in file1.iterrows():
+        code = str(row['Code']).strip()
+        if code in list2:
+            file1 = file1.drop(index)
+    return(file1)     
 
 st.set_page_config(page_icon="✂️", page_title="Ameni BM")
 
@@ -70,20 +71,24 @@ st.markdown("""---""")
 st.subheader("New items only will appear below 👇 ")
 st.text("")
 
+new = new_only (df1, df2)
+removed = removed (df1, df2)
+if st.button("Show new items"):
+    st.dataframe(new)
 c29, c30, c31 = st.columns([1, 1, 1])
 
-with c29:
+with c30:
 
     Button1 = download_button(
-        df1,
+        new,
         "New.csv",
         "Download New items",
     )
 
-with c30:
+with c31:
 
     Button2 = download_button(
-        df2,
+        removed,
         "removed.csv",
         "Download Removed items",
     )
